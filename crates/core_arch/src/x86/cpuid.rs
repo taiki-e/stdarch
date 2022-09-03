@@ -57,15 +57,11 @@ pub unsafe fn __cpuid_count(leaf: u32, sub_leaf: u32) -> CpuidResult {
     let ecx;
     let edx;
 
-    // LLVM sometimes reserves `ebx` for its internal use, we so we need to use
-    // a scratch register for it instead.
     #[cfg(target_arch = "x86")]
     {
         asm!(
-            "movl %ebx, {0}",
             "cpuid",
-            "xchgl %ebx, {0}",
-            lateout(reg) ebx,
+            lateout("ebx") ebx,
             inlateout("eax") leaf => eax,
             inlateout("ecx") sub_leaf => ecx,
             lateout("edx") edx,
@@ -74,6 +70,8 @@ pub unsafe fn __cpuid_count(leaf: u32, sub_leaf: u32) -> CpuidResult {
     }
     #[cfg(target_arch = "x86_64")]
     {
+        // LLVM sometimes reserves `ebx` for its internal use, we so we need to use
+        // a scratch register for it instead.
         asm!(
             "movq %rbx, {0:r}",
             "cpuid",
