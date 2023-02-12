@@ -103,7 +103,7 @@ fn aarch64_windows() {
 #[test]
 #[cfg(all(
     target_arch = "aarch64",
-    any(target_os = "freebsd", target_os = "openbsd")
+    any(target_os = "freebsd", target_os = "netbsd", target_os = "openbsd")
 ))]
 fn aarch64_bsd() {
     println!("asimd: {:?}", is_aarch64_feature_detected!("asimd"));

@@ -64,6 +64,9 @@ crate from working on applications in which `std` is not available.
     auxiliary vectors using `sysctl`.
   * `arm64`: run-time feature detection is implemented by directly querying `mrs`.
 
+* NetBSD:
+  * `arm64`: run-time feature detection is implemented by querying `sysctl`.
+
 * OpenBSD:
   * `arm64`: run-time feature detection is implemented by querying `sysctl`.
 
