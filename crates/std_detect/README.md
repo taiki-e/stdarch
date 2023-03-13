@@ -67,6 +67,9 @@ crate from working on applications in which `std` is not available.
 * OpenBSD:
   * `arm64`: run-time feature detection is implemented by querying `sysctl`.
 
+* Fuchsia:
+  * `arm64`: run-time feature detection is implemented by querying `zx_system_get_features`.
+
 * Windows:
   * `arm64`: run-time feature detection is implemented by querying `IsProcessorFeaturePresent`.
 

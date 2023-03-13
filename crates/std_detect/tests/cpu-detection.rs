@@ -125,6 +125,27 @@ fn aarch64_bsd() {
 }
 
 #[test]
+#[cfg(all(target_arch = "aarch64", target_os = "fuchsia"))]
+fn aarch64_fuchsia() {
+    println!("asimd: {}", is_aarch64_feature_detected!("asimd"));
+    println!("neon: {}", is_aarch64_feature_detected!("neon"));
+    println!("pmull: {}", is_aarch64_feature_detected!("pmull"));
+    println!("fp: {}", is_aarch64_feature_detected!("fp"));
+    println!("crc: {}", is_aarch64_feature_detected!("crc"));
+    println!("lse: {}", is_aarch64_feature_detected!("lse"));
+    println!("rdm: {}", is_aarch64_feature_detected!("rdm"));
+    println!("dotprod: {}", is_aarch64_feature_detected!("dotprod"));
+    println!("fhm: {}", is_aarch64_feature_detected!("fhm"));
+    println!("flagm: {}", is_aarch64_feature_detected!("flagm"));
+    println!("dpb: {}", is_aarch64_feature_detected!("dpb"));
+    println!("rand: {}", is_aarch64_feature_detected!("rand"));
+    println!("aes: {}", is_aarch64_feature_detected!("aes"));
+    println!("sha2: {}", is_aarch64_feature_detected!("sha2"));
+    println!("sha3: {}", is_aarch64_feature_detected!("sha3"));
+    println!("sm4: {}", is_aarch64_feature_detected!("sm4"));
+}
+
+#[test]
 #[cfg(all(target_arch = "powerpc", target_os = "linux"))]
 fn powerpc_linux() {
     println!("altivec: {}", is_powerpc_feature_detected!("altivec"));
