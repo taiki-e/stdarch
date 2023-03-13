@@ -251,9 +251,8 @@ impl AtHwcap {
                 // supported, it also requires half-float support:
                 let asimd = self.fp && self.asimd && (!self.fphp | self.asimdhp);
                 enable_feature(Feature::asimd, asimd);
-                // Cryptographic extensions require ASIMD
-                enable_feature(Feature::aes, self.aes && asimd);
-                enable_feature(Feature::sha2, self.sha1 && self.sha2 && asimd);
+                enable_feature(Feature::aes, self.aes);
+                enable_feature(Feature::sha2, self.sha1 && self.sha2);
                 return value;
             }
 
@@ -303,15 +302,14 @@ impl AtHwcap {
             enable_feature(Feature::f32mm, self.svef32mm && self.sve && asimd);
             enable_feature(Feature::f64mm, self.svef64mm && self.sve && asimd);
 
-            // Cryptographic extensions require ASIMD
-            enable_feature(Feature::aes, self.aes && asimd);
-            enable_feature(Feature::sha2, self.sha1 && self.sha2 && asimd);
+            enable_feature(Feature::aes, self.aes);
+            enable_feature(Feature::sha2, self.sha1 && self.sha2);
             // SHA512/SHA3 require SHA1 & SHA256
             enable_feature(
                 Feature::sha3,
-                self.sha512 && self.sha3 && self.sha1 && self.sha2 && asimd,
+                self.sha512 && self.sha3 && self.sha1 && self.sha2,
             );
-            enable_feature(Feature::sm4, self.sm3 && self.sm4 && asimd);
+            enable_feature(Feature::sm4, self.sm3 && self.sm4);
 
             // SVE2 requires SVE
             let sve2 = self.sve2 && self.sve && asimd;
