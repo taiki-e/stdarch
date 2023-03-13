@@ -124,6 +124,8 @@ fn aarch64_bsd() {
     println!("sha2: {:?}", is_aarch64_feature_detected!("sha2"));
 }
 
+// TODO: add test for riscv_{linux,freebsd}
+
 #[test]
 #[cfg(all(target_arch = "powerpc", target_os = "linux"))]
 fn powerpc_linux() {

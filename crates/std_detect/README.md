@@ -60,7 +60,7 @@ crate from working on applications in which `std` is not available.
     querying `mrs` is implemented for Linux >= 4.11, but not enabled by default.
 
 * FreeBSD:
-  * `arm32`, `powerpc64`: `std_detect` supports these on FreeBSD by querying ELF
+  * `arm32`, `powerpc64{,le}`, `riscv64`: `std_detect` supports these on FreeBSD by querying ELF
     auxiliary vectors using `sysctl`.
   * `arm64`: run-time feature detection is implemented by directly querying `mrs`.
 

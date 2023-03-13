@@ -9,6 +9,9 @@ cfg_if::cfg_if! {
     } else if #[cfg(target_arch = "arm")] {
         mod arm;
         pub(crate) use self::arm::detect_features;
+    } else if #[cfg(target_arch = "riscv64")] {
+        mod riscv;
+        pub(crate) use self::riscv::detect_features;
     } else if #[cfg(target_arch = "powerpc64")] {
         mod powerpc;
         pub(crate) use self::powerpc::detect_features;

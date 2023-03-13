@@ -4,7 +4,7 @@
         target_arch = "aarch64",
         target_arch = "arm",
         target_arch = "powerpc64",
-        target_arch = "riscv64"
+        target_arch = "riscv64",
     ),
     allow(dead_code)
 )]
@@ -12,6 +12,11 @@
 /// Key to access the CPU Hardware capabilities bitfield.
 pub(crate) const AT_HWCAP: usize = 25;
 /// Key to access the CPU Hardware capabilities 2 bitfield.
+#[cfg(any(
+    target_arch = "aarch64",
+    target_arch = "arm",
+    target_arch = "powerpc64",
+))]
 pub(crate) const AT_HWCAP2: usize = 26;
 
 /// Cache HWCAP bitfields of the ELF Auxiliary Vector.
@@ -21,6 +26,11 @@ pub(crate) const AT_HWCAP2: usize = 26;
 #[derive(Debug, Copy, Clone)]
 pub(crate) struct AuxVec {
     pub hwcap: usize,
+    #[cfg(any(
+        target_arch = "aarch64",
+        target_arch = "arm",
+        target_arch = "powerpc64",
+    ))]
     pub hwcap2: usize,
 }
 
@@ -39,9 +49,25 @@ pub(crate) struct AuxVec {
 /// [elf_common.h]: https://svnweb.freebsd.org/base/release/12.0.0/sys/sys/elf_common.h?revision=341707
 pub(crate) fn auxv() -> Result<AuxVec, ()> {
     if let Ok(hwcap) = archauxv(AT_HWCAP) {
-        if let Ok(hwcap2) = archauxv(AT_HWCAP2) {
-            if hwcap != 0 && hwcap2 != 0 {
-                return Ok(AuxVec { hwcap, hwcap2 });
+        // Targets with only AT_HWCAP:
+        #[cfg(any(target_arch = "riscv64"))]
+        {
+            if hwcap != 0 {
+                return Ok(AuxVec { hwcap });
+            }
+        }
+
+        // Targets with AT_HWCAP and AT_HWCAP2:
+        #[cfg(any(
+            target_arch = "aarch64",
+            target_arch = "arm",
+            target_arch = "powerpc64",
+        ))]
+        {
+            if let Ok(hwcap2) = archauxv(AT_HWCAP2) {
+                if hwcap != 0 && hwcap2 != 0 {
+                    return Ok(AuxVec { hwcap, hwcap2 });
+                }
             }
         }
     }
