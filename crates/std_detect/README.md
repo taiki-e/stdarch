@@ -65,7 +65,7 @@ crate from working on applications in which `std` is not available.
   * `arm64`: run-time feature detection is implemented by directly querying `mrs`.
 
 * OpenBSD:
-  * `arm64`: run-time feature detection is implemented by querying `sysctl`.
+  * `arm64`, `powerpc64`: run-time feature detection is implemented by querying `sysctl`.
 
 * Windows:
   * `arm64`: run-time feature detection is implemented by querying `IsProcessorFeaturePresent`.

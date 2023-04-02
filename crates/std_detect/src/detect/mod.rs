@@ -56,11 +56,12 @@ cfg_if! {
         mod aarch64;
         #[path = "os/freebsd/mod.rs"]
         mod os;
-    } else if #[cfg(all(target_os = "openbsd", target_arch = "aarch64", feature = "libc"))] {
+    } else if #[cfg(all(target_os = "openbsd", feature = "libc"))] {
+        #[cfg(target_arch = "aarch64")]
         #[allow(dead_code)] // we don't use code that calls the mrs instruction.
         #[path = "os/aarch64.rs"]
         mod aarch64;
-        #[path = "os/openbsd/aarch64.rs"]
+        #[path = "os/openbsd/mod.rs"]
         mod os;
     } else if #[cfg(all(target_os = "windows", target_arch = "aarch64"))] {
         #[path = "os/windows/aarch64.rs"]
