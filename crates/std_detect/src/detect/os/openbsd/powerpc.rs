@@ -13,6 +13,7 @@ cfg_if::cfg_if! {
     if #[cfg(target_arch = "powerpc64")] {
         // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/arch/powerpc64/include/cpu.h#L26-L30
         const CPU_ALTIVEC: libc::c_int = 1;
+        const PPC_FEATURE2_ARCH_3_00: u32 = 0x00800000; // power9
     } else {
         // TODO: not in powerpc/include/cpu.h
         // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/arch/macppc/include/cpu.h#L37-L44
