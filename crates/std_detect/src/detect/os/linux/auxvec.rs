@@ -56,10 +56,11 @@ pub(crate) struct AuxVec {
 /// feature detection on some platforms.
 ///
 ///  Note: The `std_detect_dlsym_getauxval` cargo feature is ignored on
-/// `*-linux-gnu*` and `*-android*` targets because we can safely assume `getauxval`
+/// `*-linux-{gnu,musl,ohos}*` and `*-android*` targets because we can safely assume `getauxval`
 /// is linked to the binary.
 /// - `*-linux-gnu*` targets ([since Rust 1.64](https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html))
 ///   have glibc requirements higher than [glibc 2.16 that added `getauxval`](https://sourceware.org/legacy-ml/libc-announce/2012/msg00000.html).
+/// - `*-linux-musl*` targets ...TODO
 /// - `*-android*` targets ([since Rust 1.68](https://blog.rust-lang.org/2023/01/09/android-ndk-update-r25.html))
 ///   have the minimum supported API level higher than [Android 4.3 (API level 18) that added `getauxval`](https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h#L49).
 ///
@@ -71,9 +72,11 @@ pub(crate) struct AuxVec {
 pub(crate) fn auxv() -> Result<AuxVec, ()> {
     #[cfg(all(
         feature = "std_detect_dlsym_getauxval",
-        not(all(target_os = "linux", target_env = "gnu")),
-        // TODO: libc crate currently doesn't provide getauxval on 32-bit Android.
-        not(all(target_os = "android", target_pointer_width = "64")),
+        not(all(
+            target_os = "linux",
+            any(target_env = "gnu", target_env = "musl", target_env = "ohos"),
+        )),
+        not(target_os = "android"),
     ))]
     {
         // Try to call a dynamically-linked getauxval function.
@@ -119,9 +122,11 @@ pub(crate) fn auxv() -> Result<AuxVec, ()> {
 
     #[cfg(any(
         not(feature = "std_detect_dlsym_getauxval"),
-        all(target_os = "linux", target_env = "gnu"),
-        // TODO: libc crate currently doesn't provide getauxval on 32-bit Android.
-        all(target_os = "android", target_pointer_width = "64"),
+        all(
+            target_os = "linux",
+            any(target_env = "gnu", target_env = "musl", target_env = "ohos"),
+        ),
+        target_os = "android",
     ))]
     {
         // Targets with only AT_HWCAP:

@@ -10,6 +10,9 @@ set -ex
 cd "$(dirname "$0")"/..
 
 targets=(
+    # Linux
+    aarch64-unknown-linux-ohos
+
     # Android
     aarch64-linux-android
     arm-linux-androideabi
