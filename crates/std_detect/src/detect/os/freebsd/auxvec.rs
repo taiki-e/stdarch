@@ -4,7 +4,7 @@
         target_arch = "aarch64",
         target_arch = "arm",
         target_arch = "powerpc64",
-        target_arch = "riscv64"
+        target_arch = "riscv64",
     ),
     allow(dead_code)
 )]
@@ -16,6 +16,11 @@
 #[derive(Debug, Copy, Clone)]
 pub(crate) struct AuxVec {
     pub hwcap: usize,
+    #[cfg(any(
+        target_arch = "aarch64",
+        target_arch = "arm",
+        target_arch = "powerpc64",
+    ))]
     pub hwcap2: usize,
 }
 
@@ -34,12 +39,29 @@ pub(crate) struct AuxVec {
 /// [elf_common.h]: https://svnweb.freebsd.org/base/release/12.0.0/sys/sys/elf_common.h?revision=341707
 pub(crate) fn auxv() -> Result<AuxVec, ()> {
     let hwcap = archauxv(libc::AT_HWCAP);
-    let hwcap2 = archauxv(libc::AT_HWCAP2);
-    // Zero could indicate that no features were detected, but it's also used to
-    // indicate an error. In particular, on many platforms AT_HWCAP2 will be
-    // legitimately zero, since it contains the most recent feature flags.
-    if hwcap != 0 || hwcap2 != 0 {
-        return Ok(AuxVec { hwcap, hwcap2 });
+    // Targets with only AT_HWCAP:
+    #[cfg(any(target_arch = "riscv64"))]
+    {
+        // Zero could indicate that no features were detected, but it's also used to
+        // indicate an error.
+        if hwcap != 0 {
+            return Ok(AuxVec { hwcap });
+        }
+    }
+    // Targets with AT_HWCAP and AT_HWCAP2:
+    #[cfg(any(
+        target_arch = "aarch64",
+        target_arch = "arm",
+        target_arch = "powerpc64",
+    ))]
+    {
+        let hwcap2 = archauxv(libc::AT_HWCAP2);
+        // Zero could indicate that no features were detected, but it's also used to
+        // indicate an error. In particular, on many platforms AT_HWCAP2 will be
+        // legitimately zero, since it contains the most recent feature flags.
+        if hwcap != 0 || hwcap2 != 0 {
+            return Ok(AuxVec { hwcap, hwcap2 });
+        }
     }
     Err(())
 }

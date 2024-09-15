@@ -19,6 +19,7 @@ targets=(
     armv6-unknown-freebsd
     powerpc-unknown-freebsd
     powerpc64-unknown-freebsd
+    riscv64gc-unknown-freebsd
 
     # OpenBSD
     aarch64-unknown-openbsd

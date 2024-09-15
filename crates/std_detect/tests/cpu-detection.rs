@@ -187,6 +187,8 @@ fn aarch64_bsd() {
     println!("sha2: {:?}", is_aarch64_feature_detected!("sha2"));
 }
 
+// TODO: add test for riscv_{linux,freebsd}
+
 #[test]
 #[cfg(all(target_arch = "aarch64", target_vendor = "apple"))]
 fn aarch64_darwin() {

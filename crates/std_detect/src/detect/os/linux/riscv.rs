@@ -21,7 +21,7 @@ pub(crate) fn detect_features() -> cache::Initializer {
 
     // The values are part of the platform-specific [asm/hwcap.h][hwcap]
     //
-    // [hwcap]: https://github.com/torvalds/linux/blob/master/arch/riscv/include/asm/hwcap.h
+    // [hwcap]: https://github.com/torvalds/linux/blob/master/arch/riscv/include/uapi/asm/hwcap.h
     let auxv = auxvec::auxv().expect("read auxvec"); // should not fail on RISC-V platform
     enable_feature(
         &mut value,
@@ -49,25 +49,23 @@ pub(crate) fn detect_features() -> cache::Initializer {
     enable_feature(&mut value, Feature::rv64i, has_i);
     #[cfg(target_pointer_width = "32")]
     enable_feature(&mut value, Feature::rv32i, has_i);
-    #[cfg(target_pointer_width = "32")]
-    enable_feature(
-        &mut value,
-        Feature::rv32e,
-        bit::test(auxv.hwcap, (b'e' - b'a').into()),
-    );
-    enable_feature(
-        &mut value,
-        Feature::h,
-        bit::test(auxv.hwcap, (b'h' - b'a').into()),
-    );
     enable_feature(
         &mut value,
         Feature::m,
         bit::test(auxv.hwcap, (b'm' - b'a').into()),
     );
+    enable_feature(
+        &mut value,
+        Feature::v,
+        bit::test(auxv.hwcap, (b'v' - b'a').into()),
+    );
     // FIXME: Auxvec does not show supervisor feature support, but this mode may be useful
     // to detect when Rust is used to write Linux kernel modules.
     // These should be more than Auxvec way to detect supervisor features.
+
+    // FIXME: Auxv only supports single-letter extensions.
+    // We can use riscv_hwprobe for multi-letter extensions.
+    // https://github.com/torvalds/linux/blob/master/Documentation/arch/riscv/hwprobe.rst
 
     value
 }
