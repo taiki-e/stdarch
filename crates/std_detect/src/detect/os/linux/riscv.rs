@@ -21,13 +21,16 @@ struct riscv_hwprobe {
 #[allow(non_upper_case_globals)]
 const __NR_riscv_hwprobe: libc::c_long = 258;
 
+// https://github.com/torvalds/linux/blob/master/include/uapi/linux/prctl.h
+const PR_RISCV_V_GET_CONTROL: libc::c_int = 70;
+
 // const RISCV_HWPROBE_KEY_BASE_BEHAVIOR: i64 = 3;
 // const RISCV_HWPROBE_BASE_BEHAVIOR_IMA: u64 = 1 << 0;
 
 const RISCV_HWPROBE_KEY_IMA_EXT_0: i64 = 4;
 // const RISCV_HWPROBE_IMA_FD: u64 = 1 << 0;
 // const RISCV_HWPROBE_IMA_C: u64 = 1 << 1;
-// const RISCV_HWPROBE_IMA_V: u64 = 1 << 2;
+const RISCV_HWPROBE_IMA_V: u64 = 1 << 2;
 const RISCV_HWPROBE_EXT_ZBA: u64 = 1 << 3;
 const RISCV_HWPROBE_EXT_ZBB: u64 = 1 << 4;
 const RISCV_HWPROBE_EXT_ZBS: u64 = 1 << 5;
@@ -62,11 +65,11 @@ const RISCV_HWPROBE_EXT_ZTSO: u64 = 1 << 33;
 const RISCV_HWPROBE_EXT_ZACAS: u64 = 1 << 34;
 // const RISCV_HWPROBE_EXT_ZICOND: u64 = 1 << 35;
 const RISCV_HWPROBE_EXT_ZIHINTPAUSE: u64 = 1 << 36;
-// const RISCV_HWPROBE_EXT_ZVE32X: u64 = 1 << 37;
-// const RISCV_HWPROBE_EXT_ZVE32F: u64 = 1 << 38;
-// const RISCV_HWPROBE_EXT_ZVE64X: u64 = 1 << 39;
-// const RISCV_HWPROBE_EXT_ZVE64F: u64 = 1 << 40;
-// const RISCV_HWPROBE_EXT_ZVE64D: u64 = 1 << 41;
+const RISCV_HWPROBE_EXT_ZVE32X: u64 = 1 << 37;
+const RISCV_HWPROBE_EXT_ZVE32F: u64 = 1 << 38;
+const RISCV_HWPROBE_EXT_ZVE64X: u64 = 1 << 39;
+const RISCV_HWPROBE_EXT_ZVE64F: u64 = 1 << 40;
+const RISCV_HWPROBE_EXT_ZVE64D: u64 = 1 << 41;
 // const RISCV_HWPROBE_EXT_ZIMOP: u64 = 1 << 42;
 // const RISCV_HWPROBE_EXT_ZCA: u64 = 1 << 43;
 // const RISCV_HWPROBE_EXT_ZCB: u64 = 1 << 44;
@@ -262,20 +265,19 @@ pub(crate) fn detect_features() -> cache::Initializer {
             // enable_feature(Feature::zk, zkn & zkr & zkt);
             enable_feature(Feature::zks, zbkb & zbkc & zbkx & zksed & zksh);
             // Refer result from hwcap because it reflects Vector enablement status, unlike hwprobe.
-            // prctl(PR_RISCV_V_GET_CONTROL) is another way to check this but it doesn't work with
+            // Check both hwcap and prctl(PR_RISCV_V_GET_CONTROL) because the latter doesn't work with
             // qemu-user (as of 9.2.1).
             // See https://docs.kernel.org/arch/riscv/vector.html for more.
-            if has_v {
+            if has_v || unsafe { libc::prctl(PR_RISCV_V_GET_CONTROL) >= 0 } {
                 // Standard Vector Extensions
-                // v and zve{32,64}* extensions are detected by hwcap.
-                // enable_feature(Feature::v, ima_ext_0 & RISCV_HWPROBE_IMA_V != 0);
+                enable_feature(Feature::v, ima_ext_0 & RISCV_HWPROBE_IMA_V != 0);
                 enable_feature(Feature::zvfh, ima_ext_0 & RISCV_HWPROBE_EXT_ZVFH != 0);
                 enable_feature(Feature::zvfhmin, ima_ext_0 & RISCV_HWPROBE_EXT_ZVFHMIN != 0);
-                // enable_feature(Feature::zve32x, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE32X != 0);
-                // enable_feature(Feature::zve32f, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE32F != 0);
-                // enable_feature(Feature::zve64x, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE64X != 0);
-                // enable_feature(Feature::zve64f, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE64F != 0);
-                // enable_feature(Feature::zve64d, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE64D != 0);
+                enable_feature(Feature::zve32x, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE32X != 0);
+                enable_feature(Feature::zve32f, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE32F != 0);
+                enable_feature(Feature::zve64x, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE64X != 0);
+                enable_feature(Feature::zve64f, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE64F != 0);
+                enable_feature(Feature::zve64d, ima_ext_0 & RISCV_HWPROBE_EXT_ZVE64D != 0);
                 // Vector Cryptography and Bit-manipulation Extensions
                 let zvbb = ima_ext_0 & RISCV_HWPROBE_EXT_ZVBB != 0;
                 enable_feature(Feature::zvbb, zvbb);
